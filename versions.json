@@ -1,0 +1,46 @@
+{
+  "_说明": "更新版本只改这个文件：在对应平台的 versions 最前面加一条（最新的放第一个），files 里填下载地址。url 留空的按钮会显示“即将开放”。",
+  "android": {
+    "name": "安卓",
+    "devices": "手机 · 平板 · 电视盒子",
+    "versions": [
+      {
+        "version": "1.1.4",
+        "date": "2026-10-29",
+        "notes": "海阔视界小程序、听歌识曲、截图、弹幕表情",
+        "files": [
+          { "label": "64 位（大多数手机）", "url": "" },
+          { "label": "32 位（老电视盒子）", "url": "" }
+        ]
+      }
+    ]
+  },
+  "ios": {
+    "name": "iOS",
+    "devices": "iPhone · iPad",
+    "versions": [
+      {
+        "version": "1.0.7",
+        "date": "2026-10-14",
+        "notes": "需要自签安装",
+        "files": [
+          { "label": "IPA 安装包", "url": "" }
+        ]
+      }
+    ]
+  },
+  "pc": {
+    "name": "电脑",
+    "devices": "Windows 10 / 11",
+    "versions": [
+      {
+        "version": "1.0.0",
+        "date": "2026-10-14",
+        "notes": "",
+        "files": [
+          { "label": "Windows 安装包", "url": "" }
+        ]
+      }
+    ]
+  }
+}

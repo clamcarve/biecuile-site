@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BieCuiLe · 别催了</title>
+<meta name="description" content="BieCuiLe（别催了）：一个什么源都能放的播放器，支持 TVBox、Python、JS、猫源、海阔、Emby、直播等各种源，安卓 / iOS / 电脑都能用。">
+<meta property="og:title" content="BieCuiLe · 别催了">
+<meta property="og:description" content="源你自己带，剩下的交给它。安卓 · iOS · 电脑。">
+<meta property="og:image" content="img/home.webp">
+<link rel="icon" href="favicon.png">
+<style>
+@font-face {
+  font-family: "FusionPixel";
+  src: url("fonts/fusion-pixel-12px.woff2") format("woff2");
+  font-display: swap;
+}
+:root {
+  --ink: #161616;
+  --paper: #ffffff;
+  --soft: #f4f4f1;
+  --line: #161616;
+  --muted: #6b6b66;
+  --pop: #ffd94a;   /* 唯一的点缀色：像素黄 */
+  --px: 4px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "FusionPixel", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.7;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  /* 很淡的像素点阵底纹 */
+  background-image: radial-gradient(#e8e8e3 1px, transparent 1.2px);
+  background-size: 16px 16px;
+}
+img { max-width: 100%; image-rendering: auto; }
+.pixelated { image-rendering: pixelated; image-rendering: crisp-edges; }
+a { color: inherit; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; }
+
+/* ---------- 像素边框：外描边 + 硬投影 ---------- */
+.px-box {
+  background: var(--paper);
+  border: var(--px) solid var(--line);
+  box-shadow: 6px 6px 0 var(--line);
+  position: relative;
+}
+.px-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 10px 20px;
+  border: var(--px) solid var(--line);
+  background: var(--paper);
+  box-shadow: 4px 4px 0 var(--line);
+  font: inherit; font-size: 18px; text-decoration: none; color: var(--ink);
+  cursor: pointer; transition: transform .08s steps(1), box-shadow .08s steps(1);
+}
+.px-btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--line); }
+.px-btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--line); }
+.px-btn.pop { background: var(--pop); }
+.px-btn[aria-disabled="true"] { color: var(--muted); cursor: default; }
+
+/* ---------- 顶部 ---------- */
+header {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(255,255,255,.94);
+  border-bottom: var(--px) solid var(--line);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+header .wrap { display: flex; align-items: center; gap: 14px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-size: 24px; }
+.brand img { width: 28px; height: 37px; }
+nav { margin-left: auto; display: flex; gap: 22px; flex-wrap: wrap; }
+nav a { text-decoration: none; font-size: 18px; }
+nav a:hover { background: var(--pop); }
+@media (max-width: 620px) { nav .opt { display: none; } }
+
+/* ---------- 首屏 ---------- */
+.hero { padding-block: 64px 40px; }
+.hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
+@media (max-width: 860px) { .hero .wrap { grid-template-columns: 1fr; } .hero-phone { order: -1; } }
+.tag {
+  display: inline-block; font-size: 12px; padding: 2px 10px; margin-bottom: 18px;
+  border: 3px solid var(--line); background: var(--pop);
+}
+h1 { font-size: 48px; line-height: 1.25; margin: 0 0 8px; font-weight: normal; letter-spacing: 1px; }
+h1 .cn { display: block; font-size: 36px; color: var(--muted); }
+.lead { font-size: 24px; line-height: 1.6; margin: 18px 0 26px; }
+.lead mark { background: var(--pop); padding: 0 4px; }
+.platforms { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 26px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px;
+  border: 3px solid var(--line); background: var(--soft); font-size: 18px;
+}
+.cta { display: flex; flex-wrap: wrap; gap: 16px; }
+.cursor::after { content: "_"; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ---------- 像素手机外框 ---------- */
+.phone {
+  width: min(280px, 72vw);
+  margin-inline: auto;
+  padding: 14px 10px 22px;
+  background: var(--ink);
+  border: var(--px) solid var(--line);
+  box-shadow: 8px 8px 0 #c9c9c2;
+  /* 切掉四个角：像素圆角 */
+  clip-path: polygon(0 12px, 4px 12px, 4px 4px, 12px 4px, 12px 0, calc(100% - 12px) 0, calc(100% - 12px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 12px, 100% 12px, 100% calc(100% - 12px), calc(100% - 4px) calc(100% - 12px), calc(100% - 4px) calc(100% - 4px), calc(100% - 12px) calc(100% - 4px), calc(100% - 12px) 100%, 12px 100%, 12px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 12px), 0 calc(100% - 12px));
+}
+.phone img { display: block; width: 100%; height: auto; aspect-ratio: 9 / 20; object-fit: cover; object-position: top; background: #222; }
+.phone::after { content: ""; display: block; width: 44px; height: 6px; margin: 10px auto 0; background: #555; }
+.hero-phone { position: relative; }
+.hero-phone .phone { animation: bob 2.4s steps(2) infinite; }
+@keyframes bob { 50% { transform: translateY(-6px); } }
+
+/* ---------- 像素小装饰（纯 CSS 点阵） ---------- */
+.spr { position: absolute; width: 4px; height: 4px; background: transparent; pointer-events: none; }
+/* 星星 */
+.spr.star { box-shadow:
+  8px 0 var(--pop), 8px 4px var(--pop), 0 8px var(--pop), 4px 8px var(--pop), 8px 8px var(--line), 12px 8px var(--pop), 16px 8px var(--pop),
+  8px 12px var(--pop), 8px 16px var(--pop); animation: twinkle 1.6s steps(1) infinite; }
+@keyframes twinkle { 50% { opacity: .2; } }
+/* 云 */
+.spr.cloud { box-shadow:
+  12px 0 var(--line), 16px 0 var(--line), 20px 0 var(--line),
+  8px 4px var(--line), 12px 4px #fff, 16px 4px #fff, 20px 4px #fff, 24px 4px var(--line), 28px 4px var(--line), 32px 4px var(--line),
+  0 8px var(--line), 4px 8px var(--line), 8px 8px #fff, 12px 8px #fff, 16px 8px #fff, 20px 8px #fff, 24px 8px #fff, 28px 8px #fff, 32px 8px #fff, 36px 8px var(--line),
+  0 12px var(--line), 4px 12px #fff, 8px 12px #fff, 12px 12px #fff, 16px 12px #fff, 20px 12px #fff, 24px 12px #fff, 28px 12px #fff, 32px 12px #fff, 36px 12px var(--line),
+  4px 16px var(--line), 8px 16px var(--line), 12px 16px var(--line), 16px 16px var(--line), 20px 16px var(--line), 24px 16px var(--line), 28px 16px var(--line), 32px 16px var(--line);
+  animation: drift 6s steps(6) infinite alternate; }
+@keyframes drift { to { transform: translateX(24px); } }
+/* 爱心 */
+.spr.heart { box-shadow:
+  4px 0 #ff6b6b, 8px 0 #ff6b6b, 16px 0 #ff6b6b, 20px 0 #ff6b6b,
+  0 4px #ff6b6b, 4px 4px #ff6b6b, 8px 4px #ff6b6b, 12px 4px #ff6b6b, 16px 4px #ff6b6b, 20px 4px #ff6b6b, 24px 4px #ff6b6b,
+  4px 8px #ff6b6b, 8px 8px #ff6b6b, 12px 8px #ff6b6b, 16px 8px #ff6b6b, 20px 8px #ff6b6b,
+  8px 12px #ff6b6b, 12px 12px #ff6b6b, 16px 12px #ff6b6b, 12px 16px #ff6b6b; }
+
+/* ---------- 分区 ---------- */
+section { padding-block: 56px; }
+h2 { font-size: 36px; font-weight: normal; margin: 0 0 8px; display: flex; align-items: center; gap: 14px; }
+h2::before { content: ""; width: 16px; height: 16px; background: var(--pop); border: 4px solid var(--line); flex: none; }
+.sub { color: var(--muted); margin: 0 0 32px; }
+
+/* 截图 */
+.shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+@media (max-width: 960px) { .shots { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .shots { grid-template-columns: 1fr; } }
+.shot figure { margin: 0; }
+.shot .phone { width: 100%; max-width: 250px; box-shadow: 6px 6px 0 #c9c9c2; }
+.shot figcaption { text-align: center; margin-top: 14px; }
+.shot figcaption b { display: block; font-weight: normal; font-size: 24px; }
+.shot figcaption span { color: var(--muted); font-size: 16px; }
+
+/* 支持的源 */
+.sources { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px; }
+.src { padding: 18px 18px 16px; }
+.src .ico { width: 40px; height: 40px; border: 3px solid var(--line); display: grid; place-items: center; font-size: 24px; margin-bottom: 12px; background: var(--soft); }
+.src h3 { margin: 0 0 4px; font-size: 24px; font-weight: normal; }
+.src p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.6; }
+.note { margin-top: 26px; padding: 14px 18px; background: var(--soft); border: 3px dashed var(--line); font-size: 16px; }
+
+/* 平台 */
+.plats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 860px) { .plats { grid-template-columns: 1fr; } }
+.plat { padding: 22px; }
+.plat .big { font-size: 36px; line-height: 1.2; }
+.plat .os { font-size: 16px; color: var(--muted); margin-bottom: 12px; }
+.plat ul { margin: 0 0 18px; padding: 0; list-style: none; }
+.plat li { padding-left: 22px; position: relative; font-size: 16px; }
+.plat li::before { content: ""; position: absolute; left: 0; top: .6em; width: 8px; height: 8px; background: var(--ink); }
+
+/* 下载 */
+.dls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 860px) { .dls { grid-template-columns: 1fr; } }
+.dl { padding: 22px; }
+.dl .head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.dl .big { font-size: 36px; line-height: 1.2; }
+.dl .ver { font-size: 18px; padding: 0 8px; background: var(--pop); border: 3px solid var(--line); }
+.dl .os { font-size: 16px; color: var(--muted); }
+.dl .meta { font-size: 14px; color: var(--muted); margin: 10px 0 14px; }
+.dl .files { display: grid; gap: 12px; }
+.dl .files .px-btn { justify-content: center; font-size: 16px; padding: 8px 12px; }
+details.hist { margin-top: 18px; border-top: 3px dashed var(--line); padding-top: 10px; font-size: 16px; }
+details.hist summary { cursor: pointer; list-style: none; }
+details.hist summary::-webkit-details-marker { display: none; }
+details.hist summary::before { content: "▶ "; }
+details.hist[open] summary::before { content: "▼ "; }
+.hist ol { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 10px; }
+.hist li { padding: 8px 10px; background: var(--soft); border: 3px solid var(--line); }
+.hist li .t { display: flex; justify-content: space-between; gap: 8px; }
+.hist li a { margin-right: 12px; }
+.hist li .off { color: var(--muted); margin-right: 12px; }
+
+/* 页脚 */
+footer { border-top: var(--px) solid var(--line); padding-block: 32px; color: var(--muted); font-size: 14px; background: var(--paper); }
+footer .wrap { display: grid; gap: 10px; }
+footer .row { display: flex; align-items: center; gap: 10px; color: var(--ink); font-size: 18px; }
+
+@media (max-width: 620px) {
+  body { font-size: 16px; }
+  h1 { font-size: 36px; } h1 .cn { font-size: 24px; }
+  .lead { font-size: 18px; }
+  h2 { font-size: 24px; }
+  section { padding-block: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top"><img class="pixelated" src="img/logo.png" alt="">BieCuiLe</a>
+    <nav>
+      <a class="opt" href="#shots">截图</a>
+      <a href="#sources">支持的源</a>
+      <a class="opt" href="#platforms">平台</a>
+      <a href="#download">下载</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="tag">一个什么源都能放的播放器</span>
+        <h1>BieCuiLe<span class="cn">别催了</span></h1>
+        <p class="lead">源你自己带，<mark>剩下的交给它</mark>。<br>TVBox、Python、JS、猫源、海阔、Emby、直播……<br>导进来就能看<span class="cursor"></span></p>
+        <div class="platforms">
+          <span class="chip">▣ 安卓 · 电视</span>
+          <span class="chip">▣ iOS · iPad</span>
+          <span class="chip">▣ 电脑 PC</span>
+        </div>
+        <div class="cta">
+          <a class="px-btn pop" href="#download">▼ 下载</a>
+          <a class="px-btn" href="#sources">看看支持哪些源</a>
+        </div>
+      </div>
+      <div class="hero-phone">
+        <span class="spr star" style="left:6%;top:4%"></span>
+        <span class="spr cloud" style="right:2%;top:10%"></span>
+        <span class="spr heart" style="left:12%;bottom:12%"></span>
+        <span class="spr star" style="right:10%;bottom:20%;animation-delay:.8s"></span>
+        <div class="phone"><img src="img/home.webp" alt="BieCuiLe 首页截图：海报墙" width="540" height="1200"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="shots">
+    <div class="wrap">
+      <h2>真机截图</h2>
+      <p class="sub">都是手机上直接截的，没修过图。</p>
+      <div class="shots">
+        <div class="shot"><figure>
+          <div class="phone"><img src="img/home.webp" alt="首页" loading="lazy"></div>
+          <figcaption><b>首页</b><span>分类、海报墙，换源一键切</span></figcaption>
+        </figure></div>
+        <div class="shot"><figure>
+          <div class="phone"><img src="img/detail.webp" alt="详情页" loading="lazy"></div>
+          <figcaption><b>详情</b><span>自动刮削封面、评分、简介</span></figcaption>
+        </figure></div>
+        <div class="shot"><figure>
+          <div class="phone"><img src="img/episodes.webp" alt="选集" loading="lazy"></div>
+          <figcaption><b>选集</b><span>多季自动分组，记住看到哪</span></figcaption>
+        </figure></div>
+        <div class="shot"><figure>
+          <div class="phone"><img src="img/player.webp" alt="播放页和弹幕" loading="lazy"></div>
+          <figcaption><b>播放</b><span>多内核、弹幕、倍速、识曲</span></figcaption>
+        </figure></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sources">
+    <div class="wrap">
+      <h2>支持的源</h2>
+      <p class="sub">把配置地址、文件或分享口令丢进来，它自己认出是哪一种。</p>
+      <div class="sources">
+        <div class="src px-box"><div class="ico">📦</div><h3>TVBox 配置</h3><p>jar 爬虫、采集站（JSON / XML）、多仓线路、本地 ZIP 包，OK 影视 / FongMi 的写法都认。</p></div>
+        <div class="src px-box"><div class="ico">🐍</div><h3>Python 源</h3><p>内置 Python 运行环境，网上的 .py 源不用改直接导入。</p></div>
+        <div class="src px-box"><div class="ico">📜</div><h3>JS / drpy2 规则</h3><p>drpy2 规则、在线 (JX) 站点，自带取页面和解析的宿主函数。</p></div>
+        <div class="src px-box"><div class="ico">🐱</div><h3>猫源</h3><p>CatVod 的 Node.js 源（index.js.md5），装上运行环境就能跑。</p></div>
+        <div class="src px-box"><div class="ico">🧭</div><h3>海阔视界小程序</h3><p>海阔的规则 JSON 和分享口令，规则里的 js 照原样运行，多季自动合成一部。</p></div>
+        <div class="src px-box"><div class="ico">🐘</div><h3>PHP 源 · 本地包</h3><p>PHP 源、drpy-node 本地包，装上插件在本机跑。</p></div>
+        <div class="src px-box"><div class="ico">🍥</div><h3>Kazumi 规则</h3><p>动漫站规则仓库，遇到验证码会让你在网页里点一下。</p></div>
+        <div class="src px-box"><div class="ico">🗄️</div><h3>Emby · Jellyfin · 飞牛</h3><p>多服务器、多线路自动切换，版本 / 音轨 / 字幕都能选。</p></div>
+        <div class="src px-box"><div class="ico">💾</div><h3>网络挂载</h3><p>WebDAV、SFTP、FTP 上的文件夹，按 TMDB 刮成海报墙。</p></div>
+        <div class="src px-box"><div class="ico">📺</div><h3>直播</h3><p>M3U / TXT 列表，节目单、回看、多线路自动换。</p></div>
+        <div class="src px-box"><div class="ico">🧩</div><h3>组件 · 网页源</h3><p>Forward / CapyPlayer 组件、自带界面的网页源和网页应用。</p></div>
+        <div class="src px-box"><div class="ico">🧲</div><h3>磁力 · 推送</h3><p>磁力边下边播（插件），分享 / 推送过来的链接直接播。</p></div>
+      </div>
+      <p class="note">⚠ BieCuiLe 只是一个播放器，自己不提供、不存储任何影视内容。用什么源、看什么，都由你自己决定。</p>
+    </div>
+  </section>
+
+  <section id="platforms">
+    <div class="wrap">
+      <h2>三端都能用</h2>
+      <p class="sub">同一套资源、收藏和观看记录，可以备份或扫码同步到另一台设备。</p>
+      <div class="plats">
+        <div class="plat px-box">
+          <div class="big">安卓</div>
+          <div class="os">手机 · 平板 · 电视盒子</div>
+          <ul><li>支持的源最全</li><li>电视专用界面，遥控器好操作</li><li>手机扫码给电视输入</li></ul>
+        </div>
+        <div class="plat px-box">
+          <div class="big">iOS</div>
+          <div class="os">iPhone · iPad</div>
+          <ul><li>Python、猫源、Emby、直播都能用</li><li>MPV 内核播放</li><li>和安卓互相同步记录</li></ul>
+        </div>
+        <div class="plat px-box">
+          <div class="big">电脑</div>
+          <div class="os">Windows</div>
+          <ul><li>大屏看片，键盘快捷键</li><li>Python 源、猫源、Emby、直播</li><li>可以交给 PotPlayer 等外部播放器</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="download">
+    <div class="wrap">
+      <h2>下载</h2>
+      <p class="sub">选你的设备，默认是最新版；以前的版本在下面的“历史版本”里。</p>
+      <div class="dls" id="dl"><p class="sub">正在读取版本列表…</p></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="row"><img class="pixelated" src="img/logo.png" alt="" width="21" height="28">BieCuiLe · 别催了</div>
+    <div>本软件只是播放器，不提供、不存储、不分发任何影视内容；数据来源由用户自行添加，与本软件无关。</div>
+    <div>像素字体：<a href="https://github.com/TakWolf/fusion-pixel-font">Fusion Pixel Font</a>（SIL OFL 1.1）</div>
+  </div>
+</footer>
+
+<script>
+// 版本和下载地址都在 versions.json 里，更新只改那个文件
+const ORDER = ["android", "ios", "pc"];
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fileBtn = (f, primary) => f.url
+  ? `<a class="px-btn${primary ? " pop" : ""}" href="${esc(f.url)}" rel="noopener">▼ ${esc(f.label)}</a>`
+  : `<span class="px-btn" aria-disabled="true">◆ ${esc(f.label)} · 即将开放</span>`;
+const link = (f) => f.url ? `<a href="${esc(f.url)}" rel="noopener">${esc(f.label)}</a>` : `<span class="off">${esc(f.label)}（暂无）</span>`;
+
+fetch("versions.json", { cache: "no-cache" })
+  .then((r) => r.json())
+  .then((data) => {
+    const box = document.getElementById("dl");
+    box.innerHTML = ORDER.filter((k) => data[k]).map((k) => {
+      const p = data[k];
+      const [latest, ...older] = p.versions || [];
+      if (!latest) return "";
+      return `<div class="dl px-box">
+        <div class="head"><span class="big">${esc(p.name)}</span><span class="ver">v${esc(latest.version)}</span></div>
+        <div class="os">${esc(p.devices)}</div>
+        <div class="meta">${esc(latest.date)}${latest.notes ? " · " + esc(latest.notes) : ""}</div>
+        <div class="files">${(latest.files || []).map((f, i) => fileBtn(f, i === 0)).join("")}</div>
+        ${older.length ? `<details class="hist"><summary>历史版本（${older.length}）</summary><ol>${older.map((v) => `
+          <li><div class="t"><b>v${esc(v.version)}</b><span>${esc(v.date)}</span></div>
+          ${v.notes ? `<div class="os">${esc(v.notes)}</div>` : ""}
+          <div>${(v.files || []).map(link).join("")}</div></li>`).join("")}</ol></details>` : ""}
+      </div>`;
+    }).join("");
+  })
+  .catch(() => {
+    document.getElementById("dl").innerHTML = '<p class="sub">版本列表没读到，刷新一下试试。</p>';
+  });
+</script>
+</body>
+</html>
