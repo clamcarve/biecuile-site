@@ -7,7 +7,7 @@
 <meta name="description" content="BieCuiLe（别催了）：一个什么源都能放的播放器，支持 TVBox、Python、JS、猫源、海阔、Emby、直播等各种源，安卓 / iOS / 电脑都能用。">
 <meta property="og:title" content="BieCuiLe · 别催了">
 <meta property="og:description" content="源你自己带，剩下的交给它。安卓 · iOS · 电脑。">
-<meta property="og:image" content="img/home.webp">
+<meta property="og:image" content="img/detail.webp">
 <link rel="icon" href="favicon.png">
 <style>
 @font-face {
@@ -148,8 +148,9 @@ h2::before { content: ""; width: 16px; height: 16px; background: var(--pop); bor
 .sub { color: var(--muted); margin: 0 0 32px; }
 
 /* 截图 */
-.shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
-@media (max-width: 960px) { .shots { grid-template-columns: repeat(2, 1fr); } }
+.shots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; }
+@media (max-width: 1060px) { .shots { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 760px) { .shots { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 520px) { .shots { grid-template-columns: 1fr; } }
 .shot figure { margin: 0; }
 .shot .phone { width: 100%; max-width: 250px; box-shadow: 6px 6px 0 #c9c9c2; }
@@ -250,7 +251,7 @@ footer .row { display: flex; align-items: center; gap: 10px; color: var(--ink); 
         <span class="spr cloud" style="right:2%;top:10%"></span>
         <span class="spr heart" style="left:12%;bottom:12%"></span>
         <span class="spr star" style="right:10%;bottom:20%;animation-delay:.8s"></span>
-        <div class="phone"><img src="img/home.webp" alt="BieCuiLe 首页截图：海报墙" width="540" height="1200"></div>
+        <div class="phone"><img src="img/detail.webp" alt="BieCuiLe 详情页截图" width="540" height="1200"></div>
       </div>
     </div>
   </section>
@@ -261,20 +262,24 @@ footer .row { display: flex; align-items: center; gap: 10px; color: var(--ink); 
       <p class="sub">都是手机上直接截的，没修过图。</p>
       <div class="shots">
         <div class="shot"><figure>
-          <div class="phone"><img src="img/home.webp" alt="首页" loading="lazy"></div>
-          <figcaption><b>首页</b><span>分类、海报墙，换源一键切</span></figcaption>
+          <div class="phone"><img src="img/detail.webp" alt="详情" loading="lazy" width="540" height="1200"></div>
+          <figcaption><b>详情</b><span>自动刮削海报、评分、简介</span></figcaption>
         </figure></div>
         <div class="shot"><figure>
-          <div class="phone"><img src="img/detail.webp" alt="详情页" loading="lazy"></div>
-          <figcaption><b>详情</b><span>自动刮削封面、评分、简介</span></figcaption>
+          <div class="phone"><img src="img/mini.webp" alt="小窗播放" loading="lazy" width="540" height="1200"></div>
+          <figcaption><b>小窗播放</b><span>边看边选集，剧照选集卡片</span></figcaption>
         </figure></div>
         <div class="shot"><figure>
-          <div class="phone"><img src="img/episodes.webp" alt="选集" loading="lazy"></div>
-          <figcaption><b>选集</b><span>多季自动分组，记住看到哪</span></figcaption>
+          <div class="phone"><img src="img/follow.webp" alt="追更" loading="lazy" width="540" height="1200"></div>
+          <figcaption><b>追更</b><span>一部剧的更新日历，一键追更</span></figcaption>
         </figure></div>
         <div class="shot"><figure>
-          <div class="phone"><img src="img/player.webp" alt="播放页和弹幕" loading="lazy"></div>
-          <figcaption><b>播放</b><span>多内核、弹幕、倍速、识曲</span></figcaption>
+          <div class="phone"><img src="img/calendar.webp" alt="追剧日历" loading="lazy" width="540" height="1200"></div>
+          <figcaption><b>追剧日历</b><span>追的剧哪天更新一目了然</span></figcaption>
+        </figure></div>
+        <div class="shot"><figure>
+          <div class="phone"><img src="img/settings.webp" alt="设置" loading="lazy" width="540" height="1200"></div>
+          <figcaption><b>设置</b><span>外观、播放、账号，全都能调</span></figcaption>
         </figure></div>
       </div>
     </div>
